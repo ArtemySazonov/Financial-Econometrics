@@ -9,9 +9,9 @@ jobs:
       - name: Compile LaTeX document
         uses: xu-cheng/latex-action@v3
         with:
-          root_file: document.tex
+          root_file: financial_econometrics.tex
       - name: Upload PDF file
         uses: actions/upload-artifact@v3
         with:
           name: PDF
-          path: document.pdf
+          path: financial_econometrics.pdf
