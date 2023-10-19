@@ -1,0 +1,76 @@
+\section{Многомерные модели}
+    Если мы рассмотрим 2 независимых ряда, стационарных вокруг разных линейных 
+    трендов (но не стационарных), то выборочная корреляция будет значимо отлична от нуля. 
+    Поэтому в этой лекции рассматриваем стационарные модели рядов.
+    В финансовой эконометрике доходности активов $\frac{y_t - y_{t-1}}{y_{t-1}}$ обычно почти что стационарны.
+
+    Начнем с обобщений модели ARIMA.
+
+    \subsection{ARIMAX and Intervention analysis}
+        \begin{definition}[$\mathrm{ARIMAX}(p,d,q)$]
+            \begin{multline}
+                \Delta^d y_{t} =
+                        \alpha_1 \Delta^d y_{t-1} + \dots + \alpha_p \Delta^d y_{t-p} + 
+                        \beta_1 \Delta^d \epsilon_{t-1} + \dots \\ \dots + \beta_q \Delta^d \epsilon_{t-q} + 
+                        \gamma_1 X_{1t} + \dots + \gamma_k X_{kt},
+            \end{multline} 
+            где $X_{it}$ -- значения стационарного ряда в какой-то момент времени (можем при помощи $i$ сдвигать время).
+        \end{definition}
+
+        Рассмотрим $\mathrm{AR}(1)$ модель с простым структурным срывом:
+        \begin{align}
+            & y_t = \alpha_0 + \alpha_1 t_{t-1} + c z_t + \epsilon_t, \\
+            & z_t = \begin{cases}
+                1,& t\geq t^*,\\
+                0,& t<t^*.
+            \end{cases}
+        \end{align}
+        Мгновенный эффект $+c$. Каков будет долгосрочный эффект? 
+        \begin{align}
+            & \text{До: }&\mathbb{E} \left[y_t\right] &= \alpha_0 + \alpha_1 \mathbb{E} \left[y_{t-1}\right], \\
+            & \text{После: }&\mathbb{E} \left[y_t\right] &= (\alpha_0+c) + \alpha_1 \mathbb{E} \left[y_{t-1}\right].
+        \end{align}
+        Долгосрочный эффект: $+\frac{c}{1-\alpha_1}$ (если брать различие по сравнению с моментом структурного срыва).
+        \begin{definition}
+            Impulse response function -- функция следующего вида:
+            \begin{equation*}
+                \mathrm{IRF} = \frac{\partial y_t}{\partial z_{t^*}}.
+            \end{equation*} 
+            Показывает как меняется временной ряд в долгосрочной перспективе (явно выражаем $y_t = y_{t^*+(t-t^*)}$).
+        \end{definition}
+        Рассмотрим 
+        \begin{equation}
+            y_t = \alpha(L) y_t + \gamma(L)X_t + \epsilon_t,
+        \end{equation}
+        где $\alpha$, $\gamma$ -- лаговые полиномы.
+        Выряжая $y$, получаем 
+        \begin{equation}
+             y_t = (I - \alpha(L))^{-1} \gamma(L)X_t + (I - \alpha(L))^{-1} \epsilon_t.
+        \end{equation}
+        Отсюда можно найти $\mathrm{IRF}$ по любому из $X$. Когда мы так делаем, мы предполагаем значимое влияние $X$ на $y$, 
+        при этом $X$ -- экзогенный ряд. Но есть проблема: а что если причинность другая? Симс: "это все фигня, го ботать векторную авторегрессию".
+
+    \subsection{Vector autoregression}
+        \begin{definition}[$\mathrm{VAR}(p)$]
+            Пусть $y_t = [y^1_t, \dots, y^k_t]^T$. Модель векторной авторегрессии\footnote{Интерпретируем это как <<всё в прошлом влияет на всё в настоящем>>} $p$-ого порядка выглядит следующим образом:
+            \begin{equation}
+                y_t = A_0 + A_1y_{t-1}+ \dots + A_py_{t-p} + \epsilon_t.
+            \end{equation}
+            Оценка происходит построчно при помощи МНК.
+        \end{definition}
+        Симсон предложил: мы в VAR слишком много фигни оцениваем, нам важно получить состоятельные оценки, а не эффективные.
+        \begin{example}[Двумерный $\mathrm{VAR}(1)$]
+            \begin{align}
+                & x_t = a_0 + a_1 x_{t-1} + a_2 z_{t-1} + \epsilon^1_t, \\
+                & z_t = b_0 + b_1 x_{t-1} + b_2 z_{t-1} + \epsilon^2_t.
+            \end{align}
+        \end{example}
+        Рассмотрим $\mathrm{VAR}(1)$:
+        \begin{align*}
+            & y_t = A_0 + A_1y_{t-1} + \epsilon_t\\
+            & (I - A_1L) y_t = A_0 + \epsilon_t\\
+            &  y_t = (I - A_1L)^{-1}A_0 + (I - A_1L)^{-1}\epsilon_t\\
+            &  y_t = \widetilde A_0 + \underbrace{A_1^n y_{t-n}}_{\to 0} + \sum_{i=1}^n A_1^i \epsilon_{t-i} \to \mathrm{VMA}(\infty)\\
+        \end{align*}
+
+        

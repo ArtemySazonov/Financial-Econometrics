@@ -1,0 +1,76 @@
+\section{Exponential Smoothing (ETS)}
+    \subsection{Simple ES}
+        \begin{align*}
+            & \hat y_{T+1\vert T} = y_T\\
+            &\ || \\
+            & \alpha y_T + \alpha(1-\alpha)y_{T-1} + \dots.
+        \end{align*}
+    \subsection{Component form}
+        \noindent Forecast equation: $\hat y_{T+h\vert T} = l_T$.
+
+        \noindent Level equation: $l_t = \alpha y_t + (1-\alpha)l_{t-1}$.
+
+    \subsection{Тренд Holt (1957)}
+        \noindent Forecast equation: $\hat y_{T+h\vert T} = l_T + hb_T$.
+
+        \noindent Level equation: $l_t = \alpha y_t + (1-\alpha)(l_{t-1}+b_{t-1})$.
+
+        \noindent Trend equation: $b_t = \beta(l_t - l_{t-1}) + (1-\beta) b_{t-1}$.
+
+    \subsection{Тренд с сезонностью Holt-Winters}
+        \noindent Forecast equation: $\hat y_{T+h\vert T} = l_T + hb_T + S_{t+h - s(k-\cdot)}$.
+
+        \noindent Level equation: $l_t = \alpha (y_t - S_{t-s}) + (1-\alpha)(l_{t-1}+b_{t-1})$.
+
+        \noindent Trend equation: $b_t = \beta(l_t - l_{t-1}) + (1-\beta) b_{t-1}$.
+
+        \noindent Seasonality equation: $S_t = \gamma(y_t - l_{t-1} - b_{t-1}) + (1-\gamma) S_{t-s}$.
+
+    \subsection{Damped trend}
+        \noindent Forecast equation: $\hat y_{T+h\vert T} = l_T + {\color{red}(\phi + \phi^2 + \dots + \phi^h)}b_T + S_{t+h - s(k-\cdot)}$, $\phi \in (0, 1)$.
+
+        \noindent Level equation: $l_t = \alpha (y_t - S_{t-s}) + (1-\alpha)(l_{t-1}+b_{t-1})$.
+
+        \noindent Trend equation: $b_t = \beta(l_t - l_{t-1}) + (1-\beta) b_{t-1}$.
+
+        \noindent Seasonality equation: $S_t = \gamma(y_t - l_{t-1} - b_{t-1}) + (1-\gamma) S_{t-s}$.
+    
+    \subsection{Prophet}
+        \begin{equation*}
+            y_t = \underbrace{g_t}_{\text{Trend}} + \underbrace{S_t}_{\underbrace{\text{Seasonality}}_{\text{сезон, недельная, внутридневная}}} + \underbrace{h_t}_{\text{Holidays}} + e_t
+        \end{equation*}
+
+    \subsection{Кросс-валидация моделей временных рядов}
+        \begin{algorithmic}
+            \State $y_t, t\in\{0, \dots, N\}$
+            \State $n \gets n_0$.
+            \While {$n+h \leq N$}
+                \State Строим $\hat y_{n+h|n} = \hat y_n (y_{n-n_0}, \dots y_{n})$
+                \State $n \gets n+1$
+            \EndWhile
+        \end{algorithmic}
+
+        Другой алгоритм:
+        \begin{algorithmic}
+            \State $y_t, t\in\{0, \dots, N\}$
+            \State $n \gets 0$.
+            \While {$n \leq H$}
+                \State Строим $\hat y_{t|t-n}$
+                \State $n \gets n+1$
+            \EndWhile
+        \end{algorithmic}
+
+        \textbf{Метрики}: MAE\footnote{Не чувствителен к разовым выбросам}, RMSE\footnote{Сильно чувствителен к единичным выбросам}, MAPE\footnote{Очищен от масштаба}, MASE\footnote{Относительное сравнение модели со случайным блужданием}.
+
+    \subsection{Model selection}
+        \subsubsection{Тест Diebold-Mariano (1995)}
+            Сравнивает прогнозную силу моделей. Пусть $g(\cdot)$ -- некоторая функция потерь.
+            \begin{enumerate}
+                \item $e_t^A = y_t - \hat y_t^A$, $e_t^B = y_t - \hat y_t^B$;
+                \item $d_t =g(e^A_t) - g(e^B_t)$
+            \end{enumerate}
+            \noindent $H_0: \mathbb{E}\left[d_t\right] = 0$ vs $H_A: \mathbb{E}\left[d_t\right] \neq 0$. Статистика выглядит следующим образом:
+            \begin{align*}
+                & \bar d = \frac{1}{k}\sum_t d_t,\quad \bar f = \sum_j \gamma_d(j), \\
+                & S = \frac{\bar d}{\sqrt{\bar f/k}} \overset{H_0}{\sim} N(0, 1).
+            \end{align*}

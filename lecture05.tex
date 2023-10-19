@@ -1,0 +1,71 @@
+\section{Байесовская векторная авторегрессия}
+    Замечание: BVAR -- некоторое обобщение регуляризации. Байесовский VAR -- это про очень большие модели с недостатком данных для точной фреквентивистской оценки.
+    \subsection{Minnesota Prior}
+        \begin{definition}[Minnesota Prior]
+            Положим $\mathrm{VAR}(p): \quad Y_t = X_t \Phi + \epsilon_t$, $\phi := \operatorname{vec} \Phi$, $\epsilon \sim \mathcal{N}(0; \Sigma)$.
+            \begin{equation*}
+                \mathrm{Prior}\cdot \phi \sim \mathcal{N}(\underline{\phi}; \underline{\Xi}).
+            \end{equation*}
+            Тогда 
+            \begin{equation*}
+                \mathrm{Posterior}\cdot \phi^{\text{post}} \sim \mathcal{N}(\overline{\phi}; \overline{\Xi}).
+            \end{equation*}
+            Рассмотрим $\underline \phi = \mathbb{E}^{\text{prior}}\left[\phi\right] = \operatorname{vec}\underline{\Phi}$\footnote{восстановим $\underline{\Phi}$ как обращение оператора $\mathrm{vec}$}.
+            Говорим, что модель имеет априорное распределение Минессоты, если 
+            \begin{equation*}
+                (A_l)_{ij} = \delta\mathbbm{1}(l=1, i=j), \qquad \delta \in [-1, 1].
+            \end{equation*}
+        \end{definition}
+
+        \begin{remark}
+            Смысл этого априорного распределения: пусть все компоненты рядов $\mathrm{AR}(1)$.
+        \end{remark}
+
+        \begin{example}
+            $X\sim U[0, \Theta]$. Prior: $\Theta \sim \mathrm{Pareto}(\alpha, \beta)$, \begin{equation*}
+                f(\theta) = \begin{cases}
+                    \frac{\alpha \beta^\alpha}{\theta^{\alpha+1}}, & \theta > \beta > 0, \\
+                    0, \text{ else}.
+                \end{cases}
+            \end{equation*}
+            Posterior: \begin{equation*}
+                f^{\text{post}}(\theta) =\mathcal{L} f(\theta) = f(\theta) \prod_{i=1}^{n}\frac{1}{\theta} = \frac{\alpha \beta^\alpha}{\theta^{\alpha+n+1}} \sim \mathrm{Pareto}(\alpha^*, \beta^*),
+            \end{equation*}
+            где $\alpha^* = \alpha + n$, $\beta^* = \max(\beta,\max X)$.
+        \end{example}
+        Далее все $\lambda$ -- гиперпараметры модели.
+        \begin{align*}
+            &\underline\Xi = \left[\begin{matrix}
+                 \Xi_\text{const} & 0 & 0 &  & 0 \\
+                 0 & \Xi_1 & 0 & \dots & 0 \\
+                 0 & 0 & \Xi_2 &  & 0 \\
+                  & \dots &  & \dots &  \\
+                 0 & 0 & 0 &  & \Xi_{p} \\
+            \end{matrix}\right], \\
+            &(\Xi_{i, l})_{jj} = \begin{cases}
+                \frac{\lambda_{\text{tight}}}{l^{\lambda_{\text{lag}}}}, & i=j, \\
+                \frac{(\lambda_{\text{tight}} \lambda_{\text{kron}} \sigma_i)^2}{(l^{\lambda_{\text{lag}}} \sigma_j)^2}, & i\neq j.
+            \end{cases}\qquad {l = 1, \dots, p}, \\
+            & \Xi_{i,\text{const}} = (\lambda_{\text{tight}} \lambda_{\text{const}} \sigma_i)^2.
+        \end{align*}
+
+    \subsection[Декомпозиция дисперсии (FEVD)]{Forecasting Error Variance Decomposition}
+        \begin{align*}
+            & \hat Y_{T+1} = \hat A_0 + \hat A_1 Y_T + \dots + \hat A_p Y_{T-p+1}, \\
+            &  Y_{T+1} =  A_0 +  A_1 Y_T + \dots +  A_p Y_{T-p+1} + \epsilon_{T+1}.
+        \end{align*}
+        Если оценка хорошая, то она несмещенная и 
+        \begin{equation*}
+            \hat e_{T+1} = Y_{T+1} - \mathbb{E}\left[\hat Y_{T+1}\right] = \epsilon_{T+1}.
+        \end{equation*}
+        Аналогично, 
+        \begin{equation*}
+            \hat e_{T+2} = A_1 \epsilon_{T+1} + \epsilon_{T+2}.
+        \end{equation*}
+        Итого, 
+        \begin{equation*}
+            \hat e_{T+h; j} = a_{11}\epsilon_{1;T+1} + a_{1n}\epsilon_{1 ; T+ n} + \dots + a_{k1}\epsilon_{k ; T+1 } + \dots,
+        \end{equation*}
+        где $j$ -- номер $y$. То есть можем разложить итоговую ошибку как комбинацию ошибок прошлого. Поскольку можем рассматривать ортогонализированный шум, то получаем выражение для дисперсии ошибки.
+
+

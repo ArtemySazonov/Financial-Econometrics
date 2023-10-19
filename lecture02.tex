@@ -1,0 +1,129 @@
+\section{Классический подход к теории временных рядов}
+    \subsection{Автокорреляционная функция и частная автокореляционная функция}
+        Важный инструмент исследования временного ряда.
+        \begin{definition}
+            Пусть $Y_t$ -- стационарный в широком смысле процесс. Тогда ее автокореляционная функция определяется как 
+            \begin{equation*}
+                \rho_k = \frac{\cov \left(Y_t, Y_{t-k}\right)}{\var Y_t}.
+            \end{equation*}
+        \end{definition}
+
+        \paragraph{Уравнения Юла-Уокера}
+            Рассмотрим стационарное решение процесса $AR(1)$:
+            \begin{equation*}
+                y_{t} = \alpha y_{t-1} +\epsilon_t,\quad |\alpha| < 1.
+            \end{equation*}
+            \begin{equation*}
+                \mathbb{E}\left[y_t y_{t-1}\right] = \mathbb{E}\left[(\alpha y_{t-1} +\epsilon_t) y_{t-1}\right],
+            \end{equation*}
+            откуда
+            \begin{align*}
+                & \gamma_0 = \alpha \gamma_1 + \sigma_\epsilon^2, \\
+                & \gamma_1 = \alpha\gamma_0,
+            \end{align*}
+            где
+            \begin{equation*}
+                \gamma_k = \cov\left(y_t, y_{t-k}\right).
+            \end{equation*}
+            Итого, 
+            \begin{align*}
+                & \gamma_0 = \frac{\sigma_\epsilon^2}{1-\alpha^2}, \\
+                & \gamma_1 = \alpha\frac{\sigma_\epsilon^2}{1-\alpha^2}, \\
+                & ... \\
+                & \gamma_k = \alpha^{k}\frac{\sigma_\epsilon^2}{1-\alpha^2}, \\
+                & ...
+            \end{align*}
+            Получившиеся уравнения называются \emph{уравнениями Юла-Уокера}.
+            Аналогично для стационарного решения $MA(1)$, $y_t = \epsilon_t + \beta \epsilon_{t-1}$:
+            \begin{align*}
+                & \gamma_0 = , \\
+                & \gamma_1 = \beta\sigma_\epsilon^2, \\
+                & \gamma_2 = 0, \\
+                & ... \\
+                & \gamma_k = 0, \\
+                & ...
+            \end{align*}
+
+        \begin{proposition}
+            Для стационарного решения $MA(q)$ $ACF(k) \equiv 0$ при $k>q$.
+        \end{proposition}
+
+        \begin{definition}
+            Пусть $Y_t$ -- стационарный в широком смысле процесс. Тогда её частная автокореляционная функция определяется как коэффициент $\phi_{k,k}$ из регрессии
+            \begin{equation*}
+                y_t = \phi_{k,1} y_{t-1} +\dots+ \phi_{k,k} y_{t-k} + u_t.
+            \end{equation*}
+        \end{definition}
+
+        \begin{example}[$PACF$ для процесса $AR(1)$]
+            \begin{align*}
+                & \phi_{k, 1} = \alpha, \\
+                & \phi_{k, 2} = 0, \\
+                & ... \\
+                & \phi_{k, k} = 0.
+            \end{align*}
+            Итого, $PACF(k) = \alpha \delta_1^k$, где $\delta_i^j$ -- символ Кронекера.
+        \end{example}
+
+    \subsection{Методология Бокса и Дженкинса (1970)}
+        Авторами предлагаются следующие шаги\footnote{Первые 2 шага называются идентификацией, третий -- оцениванием.}:
+        \begin{enumerate}
+            \item Ряд остационариваем разностями ($y_t \mapsto \Delta^d y_t$, оператор первой разности действует следующим образом: $\Delta y_t = y_t - y_{t-1}$);
+            \item Смотрим на $ACF$ и $PACF$ \footnote{TODO: расписать случаи}:
+                    \begin{itemize}
+                        \item $AR(p)$
+                        \item $MA(q)$
+                        \item $ARMA(p,q)$.
+                    \end{itemize}
+            \item Оцениваем $ARIMA(p,d,q)$.
+        \end{enumerate}
+
+        Так уже никто не делает, но это важный этап развития эконометрической мысли. Выяснилось, что не всегда можно остационаривать ряд разностями (например, ряды с экспоненциальными трендами); стационарность определяется большим количеством тестов.
+        Более того, для подбора параметров $ARIMA$ можно использовать информационные критерии AIC/BIC: чем больше значение статистики, тем хуже модель.
+
+    \subsection{Сезонность временных рядов}
+        Сезонная модификация модели $ARIMA$ -- $SARIMA(p, d, q)\times (P, D, Q)_S$ имеет следующий вид:
+        \begin{multline}
+            \Delta^d \Delta_S^D y_{t} =
+                    \alpha_1 \Delta^d \Delta_S^D y_{t-1} + \dots + \alpha_p \Delta^d \Delta_S^D y_{t-p} + \\ +
+                    \alpha_1^S \Delta^d \Delta_S^D y_{t-1} + \dots + \alpha_P^S \Delta^d \Delta_S^Dy_{t-PS} + \\ +
+                    \beta_1 \Delta^d \Delta_S^D \epsilon_{t-1} + \dots + \beta_q \Delta^d \Delta_S^D \epsilon_{t-q} + \\ +
+                    \beta_1^S \Delta^d \Delta_S^D \epsilon_{t-1} + \dots + \beta_Q^S \Delta^d \Delta_S^D \underbrace{\epsilon_{t-QS}}_{\text{<<$Q$ лет назад>>}},
+        \end{multline} 
+        где $\Delta_S = (1-L^S)$ -- сезонный оператор первой разности. 
+
+    \subsection{Тесты на единичные корни}
+        Это семейство тестов проверяет принадлежность корней характеристического уравнения единичной окружности.
+
+        \paragraph{Тест Дики-Фуллера (Dickey-Fuller test)}
+            Рассмотрим АР1
+            \begin{align*}
+                & y_t = \alpha y_{t-1} + \epsilon_t\qquad | -y_{t-1} \\
+                & \Delta y_t = \hat\beta \Delta y_{t-1}, \\
+                & H_0: \beta = 0\text{ vs }H_1: \beta < 0,\\
+                & \text{Статистика } t = \frac{\hat\beta}{\hat{SE}(\hat\beta)}.
+            \end{align*}
+
+        \paragraph{Расширенный тест Дики-Фуллера (Augmented DF test)}
+            Все ровно то же самое, но добавили предыдущие разности:
+            \begin{align*}
+                & \Delta y_t = ... + (\alpha-1) y_{t-1} + \beta_1 \Delta y_{t-1} \dots + \beta_k \Delta y_{t-k} + \epsilon_t, \\
+                & H_0: \beta = 0\text{ vs }H_1: \beta < 0,\\
+                & \text{Статистика } t = \frac{\hat\beta}{\hat{SE}(\hat\beta)}.
+            \end{align*}
+
+        \paragraph{Тест КПСС (KPSS test, 1993)}
+        Пример теста на стационарность вокруг тренда (trend stationarity).
+            \begin{align*}
+                & y_t = \underbrace{C_t}_{C_t = C_{t-1}+u_t} + \underbrace{\gamma t}_{\text{Линейный тренд}} + \epsilon_t, \quad \epsilon_t \independent u_t \\
+                & H_0: \var u_t = 0 \text{ vs } H_1: \var u_t > 0,\\
+            \end{align*}
+
+        \paragraph{Тест Льюнга-Бокса (Ljung-Box test)}
+            Вычислим по выборке $\hat \rho_1, \dots, \hat \rho_k$. $H_0: \hat \rho_1 = \dots = \hat \rho_k = 0$. Статистика:
+            \begin{equation*}
+                Q = T(T+2)\sum_{i=1}^k \frac{\hat \rho_i^2}{n-i} \sim \chi^2_{k}.
+            \end{equation*}
+            
+
+            
